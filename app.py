@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Request, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+import os
+
 
 from driver import *
 
@@ -40,8 +42,8 @@ async def handle_download_video(data: DownloadVideoData):
     quality = data.quality
     output_directory = data.output_directory
     if url:
-        download_video(url, quality, output_directory)
-        return {"message": "Video downloaded successfully"}
+        file_path = download_video(url, quality, output_directory)  # Get the file path
+        return FileResponse(file_path, headers={"Content-Disposition": "attachment;"})  # Serve the file
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="URL is required")
 
@@ -58,10 +60,14 @@ async def handle_download_audio(data: DownloadAudioData):
     audio_quality = data.audio_quality
     output_directory = data.output_directory
     if url:
-        download_audio(url, audio_quality, output_directory)
-        return {"message": "Audio downloaded successfully"}
+        file_path_webm = download_audio(url, audio_quality, output_directory)  # Get the file path for .webm
+        # Change the file extension in the path from .webm to .mp3
+        file_path_mp3 = os.path.splitext(file_path_webm)[0] + '.mp3'
+        return FileResponse(file_path_mp3, headers={"Content-Disposition": "attachment;"})  # Serve the .mp3 file
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="URL is required")
+
+
 
 
 @app.get("/get_video_info")

@@ -1,19 +1,17 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+
   <YoutubeDownloader />
+
 
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 import YoutubeDownloader from './components/YoutubeDownloader.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld,
-    YoutubeDownloader
+    YoutubeDownloader,
   }
 }
 </script>

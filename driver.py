@@ -1,5 +1,11 @@
 import yt_dlp
+from yt_dlp.postprocessor.common import PostProcessor
 
+class FilePathLogger(PostProcessor):
+    def run(self, information):
+        self.file_path = information['filepath']
+        return [], information
+    
 def download_video(url, quality='best', output_directory='downloads'):
     format_option = {
         '2160': 'bestvideo[height=2160]+bestaudio/best[height=2160]',
@@ -15,10 +21,12 @@ def download_video(url, quality='best', output_directory='downloads'):
         'format': format_option,
         'outtmpl': f'{output_directory}/%(title)s.%(ext)s',
         'ffmpeg_location': 'ffmpeg-master-latest-win64-gpl\\ffmpeg-master-latest-win64-gpl\\bin',  # ensure you have ffmpeg downloaded
+        'postprocessors': [FilePathLogger()]
     }
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
+        return ydl.postprocessors[0].file_path  # Return the file path
 
 def download_audio(url, audio_quality='192', output_directory='downloads'):
     ydl_opts = {
@@ -31,10 +39,14 @@ def download_audio(url, audio_quality='192', output_directory='downloads'):
         }],
         'ffmpeg_location': 'ffmpeg-master-latest-win64-gpl\\ffmpeg-master-latest-win64-gpl\\bin',
     }
+    
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info_dict = ydl.extract_info(url, download=False)
+        filename = ydl.prepare_filename(info_dict)
         ydl.download([url])
-        
-        
+        return filename  # Return the filename
+
+
         
 # low: 128, medium: 192, high: 256, exepctional: 320
 #download_audio(video_url)  # To download the audio
