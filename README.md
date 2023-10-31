@@ -1,4 +1,5 @@
 # YotubeConverter
+A webapp allowing people to download video and audio files of differening qualities.
 Everything should be installed in an Anaconda env.
 # Install libraries
 ```
