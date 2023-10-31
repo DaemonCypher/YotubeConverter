@@ -1,8 +1,5 @@
 <template>
-
   <YoutubeDownloader />
-
-
 </template>
 
 <script>
