@@ -5,7 +5,6 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from pathlib import Path
 from driver import *
-import os
 import uvicorn
 
 app = FastAPI()
@@ -26,13 +25,13 @@ templates = Jinja2Templates(directory="templates")
 
 class DownloadVideoData(BaseModel):
     url: str
-    quality: str = Query(default='best', regex='^(best|2160|1440|1080|720|480|360|240|144)$')
+    quality: str = Query(default='best', pattern='^(best|2160|1440|1080|720|480|360|240|144)$')
     output_directory: str = 'downloads'
 
 
 class DownloadAudioData(BaseModel):
     url: str
-    audio_quality: str = Query(default='192', regex='^(320|256|192|128)$')
+    audio_quality: str = Query(default='192', pattern='^(320|256|192|128)$')
     output_directory: str = 'downloads'
 
 
@@ -49,19 +48,14 @@ async def read_root():
     return "Hello, World!"
 
 
-def write_file(file_path: str, content: bytes):
-    with open(file_path, "wb") as f:
-        f.write(content)
-
-
 @app.post("/download_video")
 async def handle_download_video(data: DownloadVideoData):
     url = data.url
     quality = data.quality
+ 
     output_directory = data.output_directory
     if url:
         file_path, file_name = download_video(url, quality, output_directory)
-        print(quality)  # Print the quality for debugging
         if os.path.exists(file_path):
             return FileResponse(
                 file_path,

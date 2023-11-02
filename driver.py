@@ -1,17 +1,32 @@
 import yt_dlp
 from yt_dlp.postprocessor.common import PostProcessor
 import logging
+import os
+import shutil
 
 # Constants
 OUTPUT_DIRECTORY = 'downloads'
 FFMPEG_LOCATION = 'ffmpeg-master-latest-win64-gpl\\ffmpeg-master-latest-win64-gpl\\bin'
 
+
+def clear_downloads_folder(output_directory):
+    for filename in os.listdir(output_directory):
+        file_path = os.path.join(output_directory, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
 # Configure logging
 def setup_logging():
     logging.basicConfig(level=logging.INFO)
 
     
 def download_video(url, quality='best', output_directory=OUTPUT_DIRECTORY):
+    clear_downloads_folder(output_directory)  # Clear the downloads folder
+
     format_option = {
         '2160': 'bestvideo[height=2160][ext=mp4]+bestaudio[ext=m4a]/best[height=2160]',
         '1440': 'bestvideo[height=1440][ext=mp4]+bestaudio[ext=m4a]/best[height=1440]',
@@ -28,7 +43,13 @@ def download_video(url, quality='best', output_directory=OUTPUT_DIRECTORY):
         'format': format_option,
         'outtmpl': f'{output_directory}/%(playlist)s/%(title)s.%(ext)s',  # adjusted to handle playlists
         'ffmpeg_location': 'ffmpeg-master-latest-win64-gpl\\ffmpeg-master-latest-win64-gpl\\bin',
+        'postprocessors': [{
+            'key': 'FFmpegVideoConvertor',
+            'preferedformat': 'mp4',
+        }],
     }
+
+    logging.debug(f'ydl_opts: {ydl_opts}')
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(url, download=False)  # Extract info without downloading
@@ -39,6 +60,8 @@ def download_video(url, quality='best', output_directory=OUTPUT_DIRECTORY):
         return file_path, file_name
     
 def download_audio(url, audio_quality='192', output_directory=OUTPUT_DIRECTORY):
+    clear_downloads_folder(output_directory)  # Clear the downloads folder
+
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': f'{output_directory}/%(title)s.%(ext)s',

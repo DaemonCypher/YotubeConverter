@@ -14,7 +14,13 @@
         </button>
       </div>
       
-      <!-- Quality Selection Dropdowns -->
+
+    </div>
+  
+    <div v-if="info">
+      <h3>Video Title: {{ info.title }}</h3>
+      <img :src="info.thumbnail_url" alt="Thumbnail" />
+      <br>
       <div class="quality-selection">
         <label for="video-quality">Video Quality:</label>
         <select id="video-quality" v-model="quality">
@@ -37,14 +43,10 @@
           <option value="128">Low (128 kbps)</option>
         </select>
       </div>
-    </div>
-  
-    <div v-if="info">
-      <h3>Video Title: {{ info.title }}</h3>
-      <img :src="info.thumbnail_url" alt="Thumbnail" />
-      <br>
+      
       <button class="action-button" @click="downloadVideo">Download Video</button>
       <button class="action-button" @click="downloadAudio">Download Audio</button>
+      <button class="action-button" @click="reset">Convert Next</button> 
     </div>
   </div>
 </template>
@@ -60,6 +62,12 @@ export default {
     };
   },
   methods: {
+    reset() {
+      this.url = '';
+      this.quality = 'best';
+      this.audioQuality = '192';
+      this.info = null;
+    },
     async downloadVideo() {
       alert(this.quality);
       const response = await fetch('http://localhost:8000/download_video', {
