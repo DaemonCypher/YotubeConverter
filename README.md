@@ -1,6 +1,12 @@
 # YotubeConverter
-A webapp allowing people to download video and audio files of differening qualities.
-Everything should be installed in an Anaconda env.
+A webapp allowing users to download video and audio files of differening qualities.
+# Prerequisites
+* Anaconda
+* Vscode
+* [FFMPEG](https://ffmpeg.org/ "@embed")
+* Zip File unziper
+# Setup
+  Install the following libraries below in a venv or an Anaconda env. Unzip FFMPEG, and drop in the same directory as the Readme.md file.
 # Install libraries
 ```
 npm install core-js@^3.8.3 vue@^3.2.13 --save
@@ -9,4 +15,14 @@ npm install @babel/core@^7.12.16 @babel/eslint-parser@^7.12.16 @vue/cli-plugin-b
 ```
 ```
 pip install fastapi python-multipart uvicorn jinja2 pydantic yt-dlp
+```
+# Launching the webapp
+In a terminal and at the root directory of the code space run the following commands.
+```
+python3 app.py
+```
+This will start the backend side code for the api calls. Open another terminal and run the following commands to start the frontend.
+
+```
+cd 
 ```
