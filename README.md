@@ -24,5 +24,10 @@ python3 app.py
 This will start the backend side code for the api calls. Open another terminal and run the following commands to start the frontend.
 
 ```
-cd 
+cd YoutubeConverter
+```
+This should brin you into YoutubeConverter directory from there run.
+
+```
+npm run serve
 ```
