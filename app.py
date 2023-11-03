@@ -1,3 +1,4 @@
+from enum import Enum
 from fastapi import FastAPI, Request, HTTPException, status, File, UploadFile, Query
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,13 +8,15 @@ from pathlib import Path
 from driver import *
 import uvicorn
 
-app = FastAPI()
 
-origins = ["http://localhost:8080"]
+# Load configuration from environment variables
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:8080").split(",")
+
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,16 +26,43 @@ app.add_middleware(
 templates = Jinja2Templates(directory="templates")
 
 
+class VideoQuality(str, Enum):
+    best = 'best'
+    p2160 = '2160'
+    p1440 = '1440'
+    p1080 = '1080'
+    p720 = '720'
+    p480 = '480'
+    p360 = '360'
+    p240 = '240'
+    p144 = '144'
+
+
+class AudioQuality(str, Enum):
+    kbps320 = '320'
+    kbps256 = '256'
+    kbps192 = '192'
+    kbps128 = '128'
+
+
 class DownloadVideoData(BaseModel):
     url: str
-    quality: str = Query(default='best', pattern='^(best|2160|1440|1080|720|480|360|240|144)$')
+    quality: VideoQuality = VideoQuality.best
     output_directory: str = 'downloads'
 
 
 class DownloadAudioData(BaseModel):
     url: str
-    audio_quality: str = Query(default='192', pattern='^(320|256|192|128)$')
+    audio_quality: AudioQuality = AudioQuality.kbps192
     output_directory: str = 'downloads'
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
 
 
 @app.get("/download/{file_path:path}")

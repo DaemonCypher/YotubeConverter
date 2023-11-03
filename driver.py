@@ -1,32 +1,50 @@
-import yt_dlp
-from yt_dlp.postprocessor.common import PostProcessor
-import logging
-import os
-import shutil
+import yt_dlp  # Importing the yt_dlp library for handling YouTube video downloads and information extraction
+import logging  # Importing the logging module for logging information, warnings, and errors
+import os  # Importing the os module for interacting with the operating system
+import shutil  # Importing the shutil module for high-level file operations
 
 # Constants
-OUTPUT_DIRECTORY = 'downloads'
-FFMPEG_LOCATION = 'ffmpeg-master-latest-win64-gpl\\ffmpeg-master-latest-win64-gpl\\bin'
+OUTPUT_DIRECTORY = 'downloads'  # Defining a constant for the directory where downloads will be saved
+FFMPEG_LOCATION = 'ffmpeg-master-latest-win64-gpl\\bin'  # Defining a constant for the location of ffmpeg binary
+
+def setup_logging():
+    """Configures logging settings."""
+    logging.basicConfig(level=logging.INFO)  # Setting the logging level to INFO
 
 
 def clear_downloads_folder(output_directory):
-    for filename in os.listdir(output_directory):
-        file_path = os.path.join(output_directory, filename)
+    """
+    Clears the contents of the downloads folder and help keep the code 
+    space managable.
+    
+    Parameters:
+    - output_directory (str): The path to the directory to be cleared.
+    """
+    for filename in os.listdir(output_directory):  # Iterating through each file in the directory
+        file_path = os.path.join(output_directory, filename)  # Constructing the full path of the file
         try:
             if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
+                os.unlink(file_path)  # Deleting the file or symlink
             elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
+                shutil.rmtree(file_path)  # Deleting the directory and its contents
         except Exception as e:
-            print(f'Failed to delete {file_path}. Reason: {e}')
-# Configure logging
-def setup_logging():
-    logging.basicConfig(level=logging.INFO)
+            logging.error(f'Failed to delete {file_path}. Reason: {e}')  # Logging any errors encountered
 
     
 def download_video(url, quality='best', output_directory=OUTPUT_DIRECTORY):
-    clear_downloads_folder(output_directory)  # Clear the downloads folder
+    """
+    Downloads a video from the provided URL at the specified quality.
 
+    Parameters:
+    - url (str): The URL of the video to be downloaded.
+    - quality (str, optional): The desired quality of the video. Defaults to 'best'.
+    - output_directory (str, optional): The directory where the video will be saved. Defaults to OUTPUT_DIRECTORY.
+
+    Returns:
+    - tuple: The file path and file name of the downloaded video.
+    """
+    clear_downloads_folder(output_directory)  # Clearing the downloads folder
+    # Defining format options based on the desired quality
     format_option = {
         '2160': 'bestvideo[height=2160][ext=mp4]+bestaudio[ext=m4a]/best[height=2160]',
         '1440': 'bestvideo[height=1440][ext=mp4]+bestaudio[ext=m4a]/best[height=1440]',
@@ -39,95 +57,85 @@ def download_video(url, quality='best', output_directory=OUTPUT_DIRECTORY):
         'best': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best'
     }.get(quality, 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best')  # default to best quality if an invalid quality is provided
 
+    # Defining options for yt_dlp
     ydl_opts = {
         'format': format_option,
-        'outtmpl': f'{output_directory}/%(playlist)s/%(title)s.%(ext)s',  # adjusted to handle playlists
-        'ffmpeg_location': 'ffmpeg-master-latest-win64-gpl\\ffmpeg-master-latest-win64-gpl\\bin',
+        'outtmpl': f'{output_directory}/%(playlist)s/%(title)s.%(ext)s',  # Template for output file name
+        'ffmpeg_location': FFMPEG_LOCATION,  # Specifying the location of ffmpeg binary
         'postprocessors': [{
-            'key': 'FFmpegVideoConvertor',
-            'preferedformat': 'mp4',
+            'key': 'FFmpegVideoConvertor',  # Using FFmpeg for post-processing
+            'preferedformat': 'mp4',  # Preferred format is mp4
         }],
     }
 
-    logging.debug(f'ydl_opts: {ydl_opts}')
-
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=False)  # Extract info without downloading
-        file_path = ydl.prepare_filename(info_dict)  # Get the file path
-        ydl.download([url])  # Now download the video
-        video_title = info_dict.get('title', 'video')  # Get the video title or default to 'video' if title is not available
-        file_name = f'{video_title}.mp4'  # Construct file name from video title
-        return file_path, file_name
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # Creating a YoutubeDL object with the specified options
+        info_dict = ydl.extract_info(url, download=False)  # Extracting video info without downloading
+        file_path = ydl.prepare_filename(info_dict)  # Preparing the file name
+        ydl.download([url])  # Downloading the video
+        video_title = info_dict.get('title', 'video')  # Getting the video title
+        file_name = f'{video_title}.mp4'  # Constructing the file name
+        return file_path, file_name  # Returning the file path and file name
     
 def download_audio(url, audio_quality='192', output_directory=OUTPUT_DIRECTORY):
-    clear_downloads_folder(output_directory)  # Clear the downloads folder
+    """
+    Downloads the audio from the provided URL at the specified quality.
 
+    Parameters:
+    - url (str): The URL of the video from which audio will be extracted.
+    - audio_quality (str, optional): The desired quality of the audio. Defaults to '192'.
+    - output_directory (str, optional): The directory where the audio file will be saved. Defaults to OUTPUT_DIRECTORY.
+
+    Returns:
+    - tuple: The file path and file name of the downloaded audio.
+    """
+    clear_downloads_folder(output_directory)  # Clearing the downloads folder
+
+    # Defining options for yt_dlp
     ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': f'{output_directory}/%(title)s.%(ext)s',
+        'format': 'bestaudio/best',  # Selecting the best available audio format
+        'outtmpl': f'{output_directory}/%(title)s.%(ext)s',  # Template for output file name
         'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': audio_quality,
+            'key': 'FFmpegExtractAudio',  # Using FFmpeg to extract audio
+            'preferredcodec': 'mp3',  # Preferred audio codec is mp3
+            'preferredquality': audio_quality,  # Setting the preferred audio quality
         }],
-        'ffmpeg_location': 'ffmpeg-master-latest-win64-gpl\\ffmpeg-master-latest-win64-gpl\\bin',
+        'ffmpeg_location': FFMPEG_LOCATION,  # Specifying the location of ffmpeg binary
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=False)  # Extract info without downloading
-        ydl.download([url])  # Now download the audio
-        audio_title = info_dict.get('title', 'audio')  # Get the audio title or default to 'audio' if title is not available
-        file_name = f'{audio_title}.mp3'  # Construct file name from audio title
-        file_path = f'{output_directory}/{file_name}'  # Update file_path to reflect the .mp3 extension
-        return file_path, file_name
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # Creating a YoutubeDL object with the specified options
+        info_dict = ydl.extract_info(url, download=False)  # Extracting video info without downloading
+        ydl.download([url])  # Downloading the audio
+        audio_title = info_dict.get('title', 'audio')  # Getting the audio title
+        file_name = f'{audio_title}.mp3'  # Constructing the file name
+        file_path = f'{output_directory}/{file_name}'  # Constructing the file path
+        return file_path, file_name  # Returning the file path and file name
 
-
-def download_playlist_audio(playlist_url, output_directory=OUTPUT_DIRECTORY):
-    # Configure yt-dlp options
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': f'{output_directory}/%(playlist)s/%(title)s.%(ext)s',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'quiet': True,  # This option suppresses output, remove if you want to see download progress
-    }
-    
-    # Use yt-dlp to extract information about the playlist
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(playlist_url, download=False)
-        entries = info_dict.get('entries', [])
-        
-        for entry in entries:
-            video_url = entry['url']
-            print(f'Downloading {entry["title"]}...')
-            ydl.download([video_url])
-            print(f'Downloaded {entry["title"]}.')
-        
 
 def get_video_info(url):
+    """
+    Retrieves the title and thumbnail URL of the video at the provided URL.
+
+    Parameters:
+    - url (str): The URL of the video.
+
+    Returns:
+    - tuple: The title and thumbnail URL of the video.
+    """
+    # Defining options for yt_dlp
     ydl_opts = {
-        'quiet': True,
-        'extract_flat': False,  # Set to False to get detailed info
-        'force_generic_extractor': False,  # Set to False to allow specific extractors
-        'noplaylist': True,  # Ensure only single video info is retrieved, not playlist info
+        'quiet': True,  # Suppressing console output
+        'extract_flat': False,  # Enabling detailed info extraction
+        'force_generic_extractor': False,  # Allowing specific extractors
+        'noplaylist': True,  # Ensuring only single video info is retrieved, not playlist info
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        result = ydl.extract_info(url, download=False)
-        if 'entries' in result:
-            # Can be a playlist or a list of videos
-            video = result['entries'][0]
-        else:
-            # Just a video
-            video = result
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # Creating a YoutubeDL object with the specified options
+        result = ydl.extract_info(url, download=False)  # Extracting video info without downloading
+        video = result['entries'][0] if 'entries' in result else result  # Handling both video and playlist cases
+        video_title = video.get('title', None)  # Getting the video title
+        thumbnail_url = video.get('thumbnail', None)  # Getting the thumbnail URL
+        return video_title, thumbnail_url  # Returning the video title and thumbnail URL
 
-    video_title = video.get('title', None)
-    thumbnail_url = video.get('thumbnail', None)
-
-    return video_title, thumbnail_url
 
 if __name__ == "__main__":
     setup_logging()

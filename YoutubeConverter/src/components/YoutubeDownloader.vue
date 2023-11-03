@@ -68,78 +68,51 @@ export default {
       this.audioQuality = '192';
       this.info = null;
     },
+    createDownloadLink(blob, defaultFileName) {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = defaultFileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    async downloadMedia(endpoint, defaultFileName) {
+      const response = await fetch(`http://localhost:8000/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: this.url,
+          quality: endpoint.includes('video') ? this.quality : undefined,
+          audio_quality: endpoint.includes('audio') ? this.audioQuality : undefined
+        })
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let fileName = defaultFileName;
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename="(.+)"/);
+          if (match && match[1]) {
+            fileName = match[1];
+          }
+        }
+        this.createDownloadLink(blob, fileName);
+        alert(`${fileName} downloaded successfully`);
+      } else {
+        alert(`Error downloading ${defaultFileName}`);
+      }
+    },
     async downloadVideo() {
-      alert(this.quality);
-      const response = await fetch('http://localhost:8000/download_video', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: this.url,
-          quality: this.quality
-        })
-      });
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        const contentDisposition = response.headers.get('Content-Disposition');
-        let fileName = 'download.mp4';  // Default file name
-        if (contentDisposition) {
-          const match = contentDisposition.match(/filename="(.+)"/);
-          if (match && match[1]) {
-            fileName = match[1];
-          }
-        }
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        alert('Video downloaded successfully');
-      } else {
-        alert('Error downloading video');
-      }
+      await this.downloadMedia('download_video', 'download.mp4');
     },
-    
     async downloadAudio() {
-      const response = await fetch('http://localhost:8000/download_audio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: this.url,
-          audio_quality: this.audioQuality
-        })
-      });
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        const contentDisposition = response.headers.get('Content-Disposition');
-        let fileName = 'download.mp3';  // Default file name
-        if (contentDisposition) {
-          const match = contentDisposition.match(/filename="(.+)"/);
-          if (match && match[1]) {
-            fileName = match[1];
-          }
-        }
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        alert('Audio downloaded successfully');
-      } else {
-        alert('Error downloading audio');
-      }
+      await this.downloadMedia('download_audio', 'download.mp3');
     },
-    
     async getVideoInfo() {
       try {
-        const response = await fetch(`http://localhost:8000/get_video_info?url=${encodeURIComponent(this.url)}`, {
-          method: 'GET'
-        });
+        const response = await fetch(`http://localhost:8000/get_video_info?url=${encodeURIComponent(this.url)}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
