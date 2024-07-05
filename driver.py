@@ -7,6 +7,8 @@ import shutil  # Importing the shutil module for high-level file operations
 OUTPUT_DIRECTORY = 'downloads'  # Defining a constant for the directory where downloads will be saved
 FFMPEG_LOCATION = 'ffmpeg-master-latest-win64-gpl\\bin'  # Defining a constant for the location of ffmpeg binary
 
+# Configuration for ydl_opt is from https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/YoutubeDL.py#L183
+
 def setup_logging():
     """Configures logging settings."""
     logging.basicConfig(level=logging.INFO)  # Setting the logging level to INFO
@@ -71,11 +73,13 @@ def download_video(url, quality='best', output_directory=OUTPUT_DIRECTORY):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # Creating a YoutubeDL object with the specified options
         info_dict = ydl.extract_info(url, download=False)  # Extracting video info without downloading
         file_path = ydl.prepare_filename(info_dict)  # Preparing the file name
-        ydl.download([url])  # Downloading the video
+        error_code = ydl.download([url])  # Downloading the video
         video_title = info_dict.get('title', 'video')  # Getting the video title
         file_name = f'{video_title}.mp4'  # Constructing the file name
+        print(error_code) # TODO: should return none if download works otherwise an int. Need to check this
         return file_path, file_name  # Returning the file path and file name
     
+
 def download_audio(url, audio_quality='192', output_directory=OUTPUT_DIRECTORY):
     """
     Downloads the audio from the provided URL at the specified quality.
@@ -104,10 +108,11 @@ def download_audio(url, audio_quality='192', output_directory=OUTPUT_DIRECTORY):
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # Creating a YoutubeDL object with the specified options
         info_dict = ydl.extract_info(url, download=False)  # Extracting video info without downloading
-        ydl.download([url])  # Downloading the audio
+        error_code =ydl.download([url])  # Downloading the audio
         audio_title = info_dict.get('title', 'audio')  # Getting the audio title
         file_name = f'{audio_title}.mp3'  # Constructing the file name
         file_path = f'{output_directory}/{file_name}'  # Constructing the file path
+        print(error_code) # TODO: should return none if download works otherwise an int. Need to check this
         return file_path, file_name  # Returning the file path and file name
 
 

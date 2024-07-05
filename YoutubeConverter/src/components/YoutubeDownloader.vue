@@ -1,6 +1,21 @@
 <template>
   <div>
     <h1>YouTube Downloader</h1>
+
+
+    <div class="search-container">
+        <p>Search Youtube Videos </p>
+        <form action="" class="search-bar" id="search-form">
+            <input type="search" name="search" id="search" placeholder="  https://youtube.com/" pattern="https://www.youtube.com/watch.*" required>
+            <button class="search-btn" type="submit">
+                <span>Search</span>
+            </button>
+        </form>
+    </div>
+
+
+
+
     <div class="parent-container">
       <div class="input-container">
         <input
@@ -13,7 +28,6 @@
           <img src="../assets/search.svg" alt="Download and Display Info" />
         </button>
       </div>
-      
 
     </div>
   

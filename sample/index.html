@@ -5,25 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sample HTML Template</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <div>
-        <header>
-            <h1>PyTube Converter</h1>
-        </header>
+    <div class="title-container">
+        <h1>Pytube Converter</h1>
     </div>
 
-        <div>
-            <form action="" class="search-bar" id="search-form">
-                <input type="search" name="search" id="search" placeholder="" pattern="https://www.youtube.com/.*" required>
-                <button class="search-btn" type="submit">
-                    <span>Search</span>
-                </button>
-            </form>
+    <div class="search-container">
+        <form action="#" class="search-bar" id="search-form">
+            <input type="search" name="search" id="search" placeholder="https://youtube.com/watch" pattern="https://www.youtube.com/watch.*" required>
+            <button class="search-btn" type="submit">Search</button>
+        </form>
+    </div>
+    <div>
+        <p id="demo"></p>
+    </div>
+    
+    <div v-if="info">
+        <h3>Video Title: {{ info.title }}</h3>
+        <img :src="info.thumbnail_url" alt="Thumbnail" />
+        <br>
+        <div class="quality-selection">
+             <div class="dropdown-container">
+                <div class="container">
+                    <div class="dropdown">
+                        <div class="select">
+                            <span>Select Video Quality</span>
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <input type="hidden" name="video-quality">
+                        <ul class="dropdown-menu">
+                            <li id="best">Best</li>
+                            <li id="2160">2160p</li>
+                            <li id="1440">1440p</li>
+                            <li id="1080">1080p</li>
+                            <li id="720">720p</li>
+                            <li id="480">480p</li>
+                            <li id="360">360p</li>
+                            <li id="240">240p</li>
+                            <li id="144">144p</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="dropdown">
+                        <div class="select">
+                            <span>Select Audio Quality</span>
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <input type="hidden" name="audio-quality">
+                        <ul class="dropdown-menu">
+                            <li id="320">Exceptional (320 kbps)</li>
+                            <li id="256">High (256 kbps)</li>
+                            <li id="192">Medium (192 kbps)</li>
+                            <li id="128">Low (128 kbps)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-            <p id="demo"></p>
-        </div>
+
+        <button class="action-btn" @click="downloadVideo">Download Video</button>
+        <button class="action-btn" @click="downloadAudio">Download Audio</button>
+        <button class="action-btn" @click="reset">Convert Next</button>
+    </div>
 
     <script src="script.js"></script>
 </body>

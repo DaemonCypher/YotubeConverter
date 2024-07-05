@@ -1,10 +1,34 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('search');
-    const demoOutput = document.getElementById('demo');
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(dropdown => {
+        const select = dropdown.querySelector('.select');
+        const menu = dropdown.querySelector('.dropdown-menu');
+        const options = menu.querySelectorAll('li');
+        const hiddenInput = dropdown.querySelector('input');
 
-    searchForm.addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the form from submitting
-        demoOutput.innerHTML = searchInput.value; // Update the #demo element with the search input value
+        select.addEventListener('click', function() {
+            dropdown.classList.toggle('active');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                select.querySelector('span').textContent = this.textContent;
+                hiddenInput.value = this.id;
+                dropdown.classList.remove('active');
+                menu.style.display = 'none';
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+                menu.style.display = 'none';
+            }
+        });
     });
 });
