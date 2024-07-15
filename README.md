@@ -7,6 +7,11 @@ A webapp allowing users to download video and audio files of differening qualiti
 * Zip File unziper
 # Setup
   Install the following libraries below in a venv or an Anaconda env. Unzip FFMPEG, and drop in the same directory as the Readme.md file.
+# Setup
+  ```
+    ./setup.sh
+    ./start.sh
+  ```
 # Install libraries
 ```
 npm install core-js@^3.8.3 vue@^3.2.13 --save
