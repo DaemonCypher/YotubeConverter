@@ -1,13 +1,9 @@
 #!/bin/bash
 
-# Start FastAPI backend
-uvicorn app:app --host=0.0.0.0 --port=8080 &
+./backend.sh &
 
-# Wait for FastAPI backend to start
 sleep 5
 
-# Change directory to Vue.js frontend (if needed)
-cd YoutubeConverter
+./frontend.sh &
 
-# Start Vue.js frontend
-npm run serve
+wait
