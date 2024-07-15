@@ -7,4 +7,4 @@ npm install @babel/core@^7.12.16 @babel/eslint-parser@^7.12.16 @vue/cli-plugin-b
 # Install Python dependencies
 pip install fastapi python-multipart uvicorn jinja2 pydantic yt-dlp
 
-tar -xf ffmpeg-7.0.1.tar.xz
+git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg

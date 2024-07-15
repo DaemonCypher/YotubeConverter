@@ -10,18 +10,7 @@
   "dependencies": {
     "core-js": "^3.37.1",
     "vue": "^3.4.30"
-  },{
-    "name": "youtube-converter-frontend",
-    "version": "1.0.0",
-    "scripts": {
-      "serve": "vue-cli-service serve"
-    },
-    "dependencies": {
-      "core-js": "^3.8.3",
-      "vue": "^3.2.13"
-    }
-  }
-  
+  },
   "devDependencies": {
     "@babel/core": "^7.24.7",
     "@babel/eslint-parser": "^7.24.7",

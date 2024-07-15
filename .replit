@@ -1,1 +1,2 @@
 run = "bash setup.sh && bash start.sh"
+modules = ["nodejs-20", "python-3.10"]
