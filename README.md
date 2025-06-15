@@ -5,6 +5,7 @@
 * Other websites aside from Youtube should work
 * Will refactor to React and clean up the UI
 * Will add a .txt file option to drop list of urls to download
+* Will refactor with firebase
   
 A webapp allowing users to download video and audio files of differening qualities.
 # Prerequisites
