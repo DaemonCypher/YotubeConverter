@@ -1,6 +1,11 @@
 # YotubeConverter
 
 # Depreciated(Refactoring needed)
+* Youtube.com no longer works
+* Other websites aside from Youtube should work
+* Will refactor to React and clean up the UI
+* Will add a .txt file option to drop list of urls to download
+  
 A webapp allowing users to download video and audio files of differening qualities.
 # Prerequisites
 * Anaconda
